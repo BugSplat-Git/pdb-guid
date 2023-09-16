@@ -1,6 +1,14 @@
 import { PeFile } from '../src/pe';
 
 describe('peFile', () => {
+    it('should throw if file does not exist', async () => {
+        await expectAsync(PeFile.createFromFile('./spec/support/does-not-exist.exe')).toBeRejectedWithError('PE file does not exist at path: ./spec/support/does-not-exist.exe');
+    });
+
+    it('should throw if file does not have .exe or .dll extension', async () => {
+        await expectAsync(PeFile.createFromFile('./spec/support/bugsplat.pdb')).toBeRejectedWithError('File does not have .exe or .dll extension: ./spec/support/bugsplat.pdb');
+    });
+
     it('should read guid of a .exe file', async () => {
         const pdbFile = await PeFile.createFromFile('./spec/support/bssndrpt.exe');
         expect(pdbFile.guid).toMatch(/^64FB82D565000$/);

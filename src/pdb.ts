@@ -1,9 +1,10 @@
 import { existsSync } from 'fs';
 import { FileHandle, open } from 'fs/promises';
+import { extname } from 'node:path';
 import { PdbGuid } from './guid';
+import { readInt32, sizeOfInt16, sizeOfInt32, toUInt16, toUInt32 } from './int';
 import { PdbRootStream } from './root';
 import { verifyPdbSignature } from './signature';
-import { readInt32, sizeOfInt16, sizeOfInt32, toUInt16, toUInt32 } from './int';
 
 const sizeOfD4Bytes = 8;
 const sizeOfD2Bytes = sizeOfInt16;
@@ -23,6 +24,12 @@ export class PdbFile {
     static async createFromFile(pdbFilePath: string): Promise<PdbFile> {
         if (!existsSync(pdbFilePath)) {
             throw new Error(`PDB file does not exist at path: ${pdbFilePath}`);
+        }
+
+        const extension = extname(pdbFilePath);
+        
+        if (extension !== '.pdb') {
+            throw new Error(`File does not have .pdb extension: ${pdbFilePath}`);
         }
 
         let fileHandle: FileHandle;
