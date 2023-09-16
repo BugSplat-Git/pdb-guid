@@ -40,7 +40,7 @@ export const usageDefinitions: Array<Section> = [
         [
             '🐛 {underline https://bugsplat.com}',
             '',
-            '💻 {underline https://github.com/BugSplat-Git/android-dump-syms}',
+            '💻 {underline https://github.com/BugSplat-Git/pdb-guid}',
             '',
             '💌 {underline support@bugsplat.com}'
         ]
