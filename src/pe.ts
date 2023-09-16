@@ -32,7 +32,7 @@ export class PeFile {
         }
 
         let fileHandle: FileHandle;
-
+        let peFile: PeFile;
         try {
             fileHandle = await open(peFilePath, 'r');
 
@@ -62,9 +62,11 @@ export class PeFile {
             }
             
             const guid = new PeGuid(timeStamp, sizeOfImage);
-            return new PeFile(guid);
+            peFile = new PeFile(guid);
         } finally {
             await fileHandle!?.close();
         }
+
+        return peFile;
     }
 }

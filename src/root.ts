@@ -50,7 +50,7 @@ export class PdbRootStream {
         return uints;
     }
 
-    static async createFromFile(filePath: string): Promise<PdbRootStream | null> {
+    static async createFromFile(filePath: string): Promise<PdbRootStream> {
         // LLVM.org refers to the first section of the file as The Superblock
         // At file offset 0 in an MSF file is the MSF SuperBlock, which is laid out as follows:
         //
@@ -64,6 +64,7 @@ export class PdbRootStream {
         //  ulittle32_t BlockMapAddr;
         // };
         let fileHandle: FileHandle;
+        let pdbRootStream: PdbRootStream;
         try {
             const fileHandle = await open(filePath, 'r');
 
@@ -122,10 +123,12 @@ export class PdbRootStream {
                 streamDirectory[i] = getStreamBytesAsNumber(rootPageData, i);
             }
 
-            return new PdbRootStream(blockSize, directoryBytesLength, streamDirectory);
+            pdbRootStream = new PdbRootStream(blockSize, directoryBytesLength, streamDirectory);
         } finally {
             fileHandle!?.close();
         }
+
+        return pdbRootStream;
     }
 }
 

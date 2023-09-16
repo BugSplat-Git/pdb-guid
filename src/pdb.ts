@@ -33,7 +33,7 @@ export class PdbFile {
         }
 
         let fileHandle: FileHandle;
-
+        let pdbFile: PdbFile;
         try {
             fileHandle = await open(pdbFilePath, 'r');
 
@@ -69,10 +69,12 @@ export class PdbFile {
             } 
             
             const guid = new PdbGuid(guid_d1, guid_d2, guid_d3, guid_d4, age);
-            return new PdbFile(guid);
+            pdbFile = new PdbFile(guid);
         } finally {
             await fileHandle!?.close();
         }
+
+        return pdbFile;
     }
 
     private static async getGuidBytesFromPdbStream(root: PdbRootStream, fileHandle: FileHandle): Promise<Uint8Array> {
