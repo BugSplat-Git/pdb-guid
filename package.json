@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Library for extracting GUIDs from PE and PDB files without loading the entire file into memory",
   "main": "dist/index.js",
+  "bin": {
+    "pdb-guid": "./dist/bin/index.js"
+  },
   "scripts": {
     "start": "ts-node bin/index.ts ./spec/support/bugsplat.pdb",
     "test": "ts-node node_modules/jasmine/bin/jasmine",
