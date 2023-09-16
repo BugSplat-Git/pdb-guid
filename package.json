@@ -1,0 +1,39 @@
+{
+  "name": "pdb-guid",
+  "version": "1.0.0",
+  "description": "Library for extracting GUIDs from PE and PDB files without loading the entire file into memory",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "ts-node node_modules/jasmine/bin/jasmine"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BugSplat-Git/pdb-guid.git"
+  },
+  "keywords": [
+    "pdb",
+    "pe",
+    "exe",
+    "dll",
+    "file",
+    "guid",
+    "windbg",
+    "cdb",
+    "msbuild",
+    "visual",
+    "studio"
+  ],
+  "author": "BugSplat",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BugSplat-Git/pdb-guid/issues"
+  },
+  "homepage": "https://github.com/BugSplat-Git/pdb-guid#readme",
+  "devDependencies": {
+    "@types/jasmine": "^4.3.6",
+    "@types/node": "^20.6.1",
+    "jasmine": "^5.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}
