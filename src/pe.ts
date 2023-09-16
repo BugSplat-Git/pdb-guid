@@ -3,6 +3,7 @@ import { open, FileHandle } from "node:fs/promises";
 import { peSignature, verifyPeSignature } from "./signature";
 import { readInt32 } from "./int";
 import { PeGuid } from "./guid";
+import { extname } from "node:path";
 
 const machineSize = 2;
 const numberOfSectionSize = 2;
@@ -22,6 +23,12 @@ export class PeFile {
     static async createFromFile(peFilePath: string): Promise<PeFile> {
         if (!existsSync(peFilePath)) {
             throw new Error(`PE file does not exist at path: ${peFilePath}`);
+        }
+
+        const extension = extname(peFilePath);
+
+        if (extension !== '.exe' && extension !== '.dll') {
+            throw new Error(`File does not have .exe or .dll extension: ${peFilePath}`);
         }
 
         let fileHandle: FileHandle;
