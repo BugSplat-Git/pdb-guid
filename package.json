@@ -6,7 +6,10 @@
   "scripts": {
     "start": "ts-node bin/index.ts ./spec/support/bugsplat.pdb",
     "test": "ts-node node_modules/jasmine/bin/jasmine",
-    "build": "tsc"
+    "help": "ts-node ./bin/index.ts -h",
+    "build": "tsc",
+    "prerelease": "npm run build",
+    "release": "npm publish --access public"
   },
   "repository": {
     "type": "git",
