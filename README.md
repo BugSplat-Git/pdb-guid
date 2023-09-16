@@ -24,7 +24,28 @@ A nifty little library for reading unique identifiers from pdb, exe, and dll fil
 
 ```bash
 bobby@BugSplat % ~ % pdb-guid -h
-    # TODO BG
+
+pdb-guid
+
+  A command line utility and library for reading the GUID of a .pdb, .exe, or   
+  .dll file.                                                                    
+
+Usage
+
+  --path string   Path to a .pdb, .exe, or .dll file. 
+  -h, --help      Print this usage guide.             
+
+Example
+
+  pdb-guid path-to-exe-dll-or-pdb-file 
+
+Links
+
+  🐛 https://bugsplat.com                     
+                                              
+  💻 https://github.com/BugSplat-Git/pdb-guid 
+                                              
+  💌 support@bugsplat.com 
 ```
 
 3. Run pdb-guid specifying a path to a pdb, exe, or dll file:
