@@ -13,12 +13,12 @@ export function toUInt16(bytes: Uint8Array, startIndex: number): number {
     return dataView.getUint16(startIndex, true);
 }
 
-export async function readInt32(fileHandle: FileHandle, fileReadOffset: number): Promise<number | null> {
-    const arr = await readInt32Array(fileHandle, fileReadOffset, 1);
+export async function readUInt32(fileHandle: FileHandle, fileReadOffset: number): Promise<number | null> {
+    const arr = await readUInt32Array(fileHandle, fileReadOffset, 1);
     return arr ? arr[0] : null;
 }
 
-export async function readInt32Array(fileHandle: FileHandle, fileReadOffset: number, numIntsToRead: number): Promise<number[] | null> {
+export async function readUInt32Array(fileHandle: FileHandle, fileReadOffset: number, numIntsToRead: number): Promise<number[] | null> {
     const bufferLength = sizeOfInt32 * numIntsToRead;
     const buffer = Buffer.alloc(bufferLength);
 
@@ -31,7 +31,7 @@ export async function readInt32Array(fileHandle: FileHandle, fileReadOffset: num
     const intArray: number[] = [];
 
     for (let i = 0; i < numIntsToRead; i++) {
-        intArray.push(buffer.readInt32LE(i * sizeOfInt32));
+        intArray.push(buffer.readUInt32LE(i * sizeOfInt32));
     }
 
     return intArray;

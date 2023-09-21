@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { open, FileHandle } from "node:fs/promises";
 import { peSignature, verifyPeSignature } from "./signature";
-import { readInt32 } from "./int";
+import { readUInt32 } from "./int";
 import { PeGuid } from "./guid";
 import { extname } from "node:path";
 
@@ -37,7 +37,7 @@ export class PeFile {
             fileHandle = await open(peFilePath, 'r');
 
             const peSignaturePointer = 0x3C;
-            const peSignatureOffset = await readInt32(fileHandle, peSignaturePointer);
+            const peSignatureOffset = await readUInt32(fileHandle, peSignaturePointer);
 
             if (!peSignatureOffset && peSignatureOffset !== 0) {
                 throw new Error('Could not read PE signature offset');
@@ -49,13 +49,13 @@ export class PeFile {
                 throw new Error('Could not verify PE signature', error);
             }
 
-            const timeStamp = await readInt32(fileHandle, peSignatureOffset + timeDateStampOffset);
+            const timeStamp = await readUInt32(fileHandle, peSignatureOffset + timeDateStampOffset);
             
             if (!timeStamp && timeStamp !== 0) {
                 throw new Error('Could not read PE time stamp');
             }
 
-            const sizeOfImage = await readInt32(fileHandle, peSignatureOffset + optionalHeaderOffset + sizeOfImageOffset);
+            const sizeOfImage = await readUInt32(fileHandle, peSignatureOffset + optionalHeaderOffset + sizeOfImageOffset);
             
             if (!sizeOfImage && sizeOfImage !== 0) {
                 throw new Error('Could not read PE size of image');

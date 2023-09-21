@@ -2,7 +2,7 @@ import { existsSync } from 'fs';
 import { FileHandle, open } from 'fs/promises';
 import { extname } from 'node:path';
 import { PdbGuid } from './guid';
-import { readInt32, sizeOfInt16, sizeOfInt32, toUInt16, toUInt32 } from './int';
+import { readUInt32, sizeOfInt16, sizeOfInt32, toUInt16, toUInt32 } from './int';
 import { PdbRootStream } from './root';
 import { verifyPdbSignature } from './signature';
 
@@ -65,7 +65,7 @@ export class PdbFile {
             const dbiStreamPages = root.getStreamPages(3);
             if (dbiStreamPages.length > 0) {
                 const ageOffset = dbiStreamPages[0] * root.blockSize + 2 * 4;
-                age = await readInt32(fileHandle, ageOffset) || undefined;
+                age = await readUInt32(fileHandle, ageOffset) || undefined;
             } 
             
             const guid = new PdbGuid(guid_d1, guid_d2, guid_d3, guid_d4, age);

@@ -18,4 +18,9 @@ describe('peFile', () => {
         const pdbFile = await PeFile.createFromFile('./spec/support/bugsplat.dll');
         expect(pdbFile.guid).toMatch(/^64FB82ED7A000$/);
     });
+
+    it('should read guid of a .NET core .dll file', async () => {
+        const pdbFile = await PeFile.createFromFile('./spec/support/netcore.dll');
+        expect(pdbFile.guid).toMatch(/^9271620112000$/);
+    });
 });

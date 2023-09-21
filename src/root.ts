@@ -1,6 +1,6 @@
 import { FileHandle, open } from 'node:fs/promises';
 import { pdbSignature } from './signature';
-import { readInt32, readInt32Array, sizeOfInt32 } from './int';
+import { readUInt32, readUInt32Array, sizeOfInt32 } from './int';
 
 export class PdbRootStream {
 
@@ -69,14 +69,14 @@ export class PdbRootStream {
             const fileHandle = await open(filePath, 'r');
 
             const blockSizeReadOffset = pdbSignature.length;
-            const blockSize = await readInt32(fileHandle, blockSizeReadOffset);
+            const blockSize = await readUInt32(fileHandle, blockSizeReadOffset);
 
             if (!blockSize) {
                 throw new Error('Could not read blockSize');
             }
 
             const directoryBytesLengthReadOffset = pdbSignature.length + 3 * sizeOfInt32;
-            const directoryBytesLength = await readInt32(fileHandle, directoryBytesLengthReadOffset);
+            const directoryBytesLength = await readUInt32(fileHandle, directoryBytesLengthReadOffset);
 
             if (!directoryBytesLength) {
                 throw new Error('Could not read directoryBytesLength');
@@ -84,13 +84,13 @@ export class PdbRootStream {
 
             const blockMapAddressesCount = getBlockCountForBytes(directoryBytesLength, blockSize);
             const blockMapReadOffset = pdbSignature.length + 5 * sizeOfInt32;
-            const blockMapAddress = await readInt32(fileHandle, blockMapReadOffset);       
+            const blockMapAddress = await readUInt32(fileHandle, blockMapReadOffset);       
             
             if (!blockMapAddress) {
                 throw new Error('Could not read blockMapAddress');
             }
             
-            const blockMapPages = await readInt32Array(fileHandle, blockMapAddress * blockSize, blockMapAddressesCount);
+            const blockMapPages = await readUInt32Array(fileHandle, blockMapAddress * blockSize, blockMapAddressesCount);
             
             if (!blockMapPages) {
                 throw new Error('Could not read blockMapPages');

@@ -1,5 +1,5 @@
 import { FileHandle } from "node:fs/promises";
-import { readInt32, readInt32Array, sizeOfInt32, toUInt16, toUInt32 } from "../src/int";
+import { readUInt32, readUInt32Array, sizeOfInt32, toUInt16, toUInt32 } from "../src/int";
 
 describe('int', () => {
     describe('toUInt32', () => {
@@ -38,7 +38,7 @@ describe('int', () => {
         });
     });
 
-    describe('readInt32Array', () => {
+    describe('readUInt32Array', () => {
         it('should read int32 array from file', async () => {
             const buffer = Buffer.from([1, 0, 0, 0, 2, 0, 0, 0]);
             const bytesRead = buffer.length;
@@ -50,7 +50,7 @@ describe('int', () => {
                 }
             );
 
-            const result = await readInt32Array(fileHandle as any, 0, buffer.length / sizeOfInt32);
+            const result = await readUInt32Array(fileHandle as any, 0, buffer.length / sizeOfInt32);
 
             expect(result![0]).toEqual(1);
             expect(result![1]).toEqual(2);
@@ -63,11 +63,11 @@ describe('int', () => {
                 async () => ({ bytesRead: 0, buffer })
             );
 
-            return expectAsync(readInt32Array(fileHandle as any, 0, buffer.length / sizeOfInt32)).toBeRejectedWithError(/read 0 bytes instead of 8/);
+            return expectAsync(readUInt32Array(fileHandle as any, 0, buffer.length / sizeOfInt32)).toBeRejectedWithError(/read 0 bytes instead of 8/);
         });
     });
 
-    describe('readInt32', () => {
+    describe('readUInt32', () => {
         it('should read int32 from file', async () => {
             const buffer = Buffer.from([0, 0, 0, 0, 1, 0, 0, 0]);
             const bytesRead = buffer.length / 2;
@@ -79,7 +79,7 @@ describe('int', () => {
                 }
             );
 
-            const result = await readInt32(fileHandle as any, 4);
+            const result = await readUInt32(fileHandle as any, 4);
 
             expect(result).toEqual(1);
         });
@@ -91,7 +91,7 @@ describe('int', () => {
                 async () => ({ bytesRead: 0, buffer })
             );
 
-            return expectAsync(readInt32(fileHandle as any, 0)).toBeRejectedWithError(/read 0 bytes instead of 4/);
+            return expectAsync(readUInt32(fileHandle as any, 0)).toBeRejectedWithError(/read 0 bytes instead of 4/);
         });
     });
 });
