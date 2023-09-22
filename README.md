@@ -19,8 +19,8 @@ A nifty little library for reading unique identifiers from pdb, exe, and dll fil
 
 ## Command Line
 
-1. Install this package globally `npm i -g @bugsplat/symbol-upload`
-2. Run symbol-upload with `-h` to see the latest usage information:
+1. Install this package globally `npm i -g @bugsplat/pdb-guid`
+2. Run pdb-guid with `-h` to see the latest usage information:
 
 ```bash
 bobby@BugSplat % ~ % pdb-guid -h
