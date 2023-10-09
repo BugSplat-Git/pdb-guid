@@ -1,6 +1,6 @@
 {
   "name": "pdb-guid",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Library for extracting GUIDs from PE and PDB files without loading the entire file into memory",
   "main": "dist/index.js",
   "bin": {
