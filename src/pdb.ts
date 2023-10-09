@@ -26,7 +26,7 @@ export class PdbFile {
             throw new Error(`PDB file does not exist at path: ${pdbFilePath}`);
         }
 
-        const extension = extname(pdbFilePath);
+        const extension = extname(pdbFilePath).toLowerCase();
         
         if (extension !== '.pdb') {
             throw new Error(`File does not have .pdb extension: ${pdbFilePath}`);
