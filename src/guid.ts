@@ -25,6 +25,7 @@ export class PeGuid {
     ) { }
 
     toString(): string {
-        return `${this.data1.toString(16).padStart(8, '0')}${this.data2.toString(16).padStart(4, '0')}`.toUpperCase();
+        const data1PadStartCount = this.data1 ? 8 : 32;
+        return `${this.data1.toString(16).padStart(data1PadStartCount, '0')}${this.data2.toString(16).padStart(4, '0')}`.toUpperCase();
     }
 }

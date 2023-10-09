@@ -23,4 +23,9 @@ describe('peFile', () => {
         const pdbFile = await PeFile.createFromFile('./spec/support/netcore.dll');
         expect(pdbFile.guid).toMatch(/^9271620112000$/);
     });
+
+    it('should read guid of .pdb file with no timestamp section', async () => {
+        const pdbFile = await PeFile.createFromFile('./spec/support/unityengine.dll');
+        expect(pdbFile.guid).toMatch(/^0000000000000000000000000000000018000$/);
+    });
 });
