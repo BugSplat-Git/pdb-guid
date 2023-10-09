@@ -25,7 +25,7 @@ export class PeFile {
             throw new Error(`PE file does not exist at path: ${peFilePath}`);
         }
 
-        const extension = extname(peFilePath);
+        const extension = extname(peFilePath).toLowerCase();
 
         if (extension !== '.exe' && extension !== '.dll') {
             throw new Error(`File does not have .exe or .dll extension: ${peFilePath}`);
