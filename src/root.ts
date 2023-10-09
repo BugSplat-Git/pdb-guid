@@ -1,6 +1,6 @@
 import { FileHandle, open } from 'node:fs/promises';
 import { pdbSignature } from './signature';
-import { readUInt32, readUInt32Array, sizeOfInt32 } from './int';
+import { readUInt32, readUInt32Array, sizeOfInt32, toUInt32 } from './int';
 
 export class PdbRootStream {
 
@@ -120,7 +120,7 @@ export class PdbRootStream {
             const streamDirectoryBufferLength = directoryBytesLength / sizeOfInt32;
             const streamDirectory = [] as number[];
             for (let i = 0; i < streamDirectoryBufferLength; i++) {
-                streamDirectory[i] = getStreamBytesAsNumber(rootPageData, i * sizeOfInt32);
+                streamDirectory[i] = toUInt32(rootPageData, i * sizeOfInt32);
             }
 
             pdbRootStream = new PdbRootStream(blockSize, directoryBytesLength, streamDirectory);
@@ -134,9 +134,4 @@ export class PdbRootStream {
 
 function getBlockCountForBytes(totalBytes: number, blockSize: number): number {
     return Math.ceil(totalBytes / blockSize);
-}
-
-function getStreamBytesAsNumber(buffer: Buffer, offset: number): number {
-    const dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-    return dataView.getUint32(offset, true);
 }
