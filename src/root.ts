@@ -66,7 +66,7 @@ export class PdbRootStream {
         let fileHandle: FileHandle;
         let pdbRootStream: PdbRootStream;
         try {
-            const fileHandle = await open(filePath, 'r');
+            fileHandle = await open(filePath, 'r');
 
             const blockSizeReadOffset = pdbSignature.length;
             const blockSize = await readUInt32(fileHandle, blockSizeReadOffset);
@@ -125,7 +125,7 @@ export class PdbRootStream {
 
             pdbRootStream = new PdbRootStream(blockSize, directoryBytesLength, streamDirectory);
         } finally {
-            fileHandle!?.close();
+            await fileHandle!?.close();
         }
 
         return pdbRootStream;
