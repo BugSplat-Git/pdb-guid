@@ -19,7 +19,7 @@ A nifty little library for reading unique identifiers from pdb, exe, and dll fil
 
 ## Command Line
 
-1. Install this package globally `npm i -g @bugsplat/pdb-guid`
+1. Install this package globally `npm i -g pdb-guid`
 2. Run pdb-guid with `-h` to see the latest usage information:
 
 ```bash
