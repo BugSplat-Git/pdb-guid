@@ -1,9 +1,10 @@
+import { openAsBlob } from 'node:fs';
 import { PdbRootStream } from '../src/root';
-import { PdbFile } from '../src/pdb';
 
 describe('root', () => {
     it('should create instance of root stream', async () => {
-        const rootStream = await PdbRootStream.createFromFile('./spec/support/bugsplat.pdb');
+        const blob = await openAsBlob('./spec/support/bugsplat.pdb');
+        const rootStream = await PdbRootStream.createFromBlob(blob);
         expect(rootStream).not.toBeNull();
     });
 });

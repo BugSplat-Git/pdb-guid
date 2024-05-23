@@ -1,4 +1,3 @@
-import { FileHandle } from 'node:fs/promises';
 
 export const peSignature: number[] = [
     80, // P
@@ -43,48 +42,80 @@ export const pdbSignature: number[] = [
 
 export type VerifySignatureResult = { success: boolean, error?: Error };
 
-export async function verifyPdbSignature(fileHandle: FileHandle): Promise<VerifySignatureResult> {
-    const bytes = new Uint8Array(pdbSignature.length);
-    const { bytesRead } = await fileHandle.read(bytes, 0, pdbSignature.length);
+export async function verifyPdbSignature(fileBlob: Blob): Promise<VerifySignatureResult> {
+    const stream = fileBlob.slice(0, pdbSignature.length).stream();
+    const reader = stream.getReader();
 
-    if (bytesRead !== pdbSignature.length) {
+    try {
+        const result = await reader.read();
+        if (result.done) {
+            throw new Error('No data read from file');
+        }
+
+        const bytes = new Uint8Array(result.value);
+        if (bytes.length !== pdbSignature.length) {
+            return {
+                success: false,
+                error: new Error('Invalid PDB signature, wrong number of bytes read')
+            };
+        }
+
+        for (let i = 0; i < pdbSignature.length; i++) {
+            if (pdbSignature[i] !== bytes[i]) {
+                return {
+                    success: false,
+                    error: new Error(`Invalid PDB signatures differ at ${i}. Expected ${pdbSignature[i]} found ${bytes[i]}`)
+                };
+            }
+        }
+
+        return { success: true };
+    } catch (error: any) {
         return {
             success: false,
-            error: new Error('Invalid PDB signature, wrong number of bytes read')
+            error: new Error(`Error reading file: ${error.message}`)
         };
+    } finally {
+        reader.releaseLock();
     }
-
-    for (let i = 0; i < pdbSignature.length; i++) {
-        if (pdbSignature[i] !== bytes[i]) {
-            return {
-                success: false,
-                error: new Error(`Invalid PDB signatures differ at ${i}. Expected ${pdbSignature[i]} found ${bytes[i]}`)
-            };
-        }
-    }
-
-    return { success: true };
 }
 
-export async function verifyPeSignature(fileHandle: FileHandle, peSignatureOffset: number): Promise<VerifySignatureResult> {
-    const bytes = new Uint8Array(peSignature.length);
-    const { bytesRead } = await fileHandle.read(bytes, 0, peSignature.length, peSignatureOffset);
+export async function verifyPeSignature(fileBlob: Blob, peSignatureOffset: number): Promise<VerifySignatureResult> {
+    // Adjust the slicing to read from the specified offset and the length of the PE signature
+    const blobSlice = fileBlob.slice(peSignatureOffset, peSignatureOffset + peSignature.length);
+    const stream = blobSlice.stream();
+    const reader = stream.getReader();
 
-    if (bytesRead !== peSignature.length) {
-        return {
-            success: false, 
-            error: new Error('Invalid PE signature, wrong number of bytes read')
-        };
-    }
+    try {
+        const result = await reader.read();
+        if (result.done) {
+            throw new Error('No data read from file');
+        }
 
-    for (let i = 0; i < peSignature.length; i++) {
-        if (peSignature[i] !== bytes[i]) {
+        const bytes = new Uint8Array(result.value);
+        if (bytes.length !== peSignature.length) {
             return {
                 success: false,
-                error: new Error(`Invalid PE signatures differ at ${i}. Expected ${peSignature[i]} found ${bytes[i]}`)
+                error: new Error('Invalid PE signature, wrong number of bytes read')
             };
         }
-    }
 
-    return { success: true };
+        for (let i = 0; i < peSignature.length; i++) {
+            if (peSignature[i] !== bytes[i]) {
+                return {
+                    success: false,
+                    error: new Error(`Invalid PE signatures differ at ${i}. Expected ${peSignature[i]} found ${bytes[i]}`)
+                };
+            }
+        }
+
+        return { success: true };
+    } catch (error: any) {
+        return {
+            success: false,
+            error: new Error(`Error reading file: ${error.message}`)
+        };
+    } finally {
+        reader.releaseLock();
+    }
 }
