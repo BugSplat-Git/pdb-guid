@@ -16,6 +16,7 @@ describe('signature', () => {
 
             expect(success).toBeTrue();
             expect(error).toBeUndefined();
+            expect(fakeReader.releaseLock).toHaveBeenCalled();
         });
 
         it('should return error if wrong number of bytes read', async () => {
@@ -33,6 +34,7 @@ describe('signature', () => {
 
             expect(success).toBeFalse();
             expect(error?.message).toMatch(/wrong number of bytes read/);
+            expect(fakeReader.releaseLock).toHaveBeenCalled();
         });
 
         it('should return error if invalid signature', async () => {
@@ -50,9 +52,8 @@ describe('signature', () => {
 
             expect(success).toBeFalse();
             expect(error?.message).toMatch(/Invalid PDB signatures differ at 0/);
+            expect(fakeReader.releaseLock).toHaveBeenCalled();
         });
-
-        // TODO BG should release lock
     });
 
     describe('verifyPeSignature', () => {
@@ -70,6 +71,7 @@ describe('signature', () => {
 
             expect(success).toBeTrue();
             expect(error).toBeUndefined();
+            expect(fakeReader.releaseLock).toHaveBeenCalled();
         });
 
         it('should return error if wrong number of bytes read', async () => {
@@ -87,6 +89,7 @@ describe('signature', () => {
 
             expect(success).toBeFalse();
             expect(error?.message).toMatch(/wrong number of bytes read/);
+            expect(fakeReader.releaseLock).toHaveBeenCalled();
         });
 
         it('should return error if invalid signature', async () => {
@@ -104,6 +107,7 @@ describe('signature', () => {
 
             expect(success).toBeFalse();
             expect(error?.message).toMatch(/Invalid PE signatures differ at 0/);
+            expect(fakeReader.releaseLock).toHaveBeenCalled();
         });
     });
 });
