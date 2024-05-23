@@ -68,21 +68,18 @@ export class PdbRootStream {
         const blockMapReadOffset = pdbSignature.length + 5 * sizeOfUInt32;
 
         try {
-            // Read blockSize
             const blockSizeReadOffset = pdbSignature.length;
             const blockSize = await readUInt32FromBlob(fileBlob, blockSizeReadOffset);
             if (!blockSize) {
                 throw new Error('Could not read blockSize');
             }
 
-            // Read directoryBytesLength
             const directoryBytesLengthReadOffset = pdbSignature.length + 3 * sizeOfInt32;
             const directoryBytesLength = await readUInt32FromBlob(fileBlob, directoryBytesLengthReadOffset);
             if (!directoryBytesLength) {
                 throw new Error('Could not read directoryBytesLength');
             }
 
-            // Calculate blockMapAddress
             const blockMapAddressesCount = getBlockCountForBytes(directoryBytesLength, blockSize);
             const blockMapReadOffset = pdbSignature.length + 5 * sizeOfInt32;
 
@@ -90,14 +87,12 @@ export class PdbRootStream {
             if (!blockMapAddress) {
                 throw new Error('Could not read blockMapAddress');
             }
-            // Read block map pages
             const blockMapPages = await readUInt32ArrayFromBlob(fileBlob, blockMapAddress * blockSize, blockMapAddressesCount);
 
             if (!blockMapPages) {
                 throw new Error('Could not read blockMapPages');
             }
 
-            // Read root page data
             const rootPageData = new Uint8Array(blockMapAddressesCount * blockSize);
             for (let i = 0; i < blockMapAddressesCount; i++) {
                 const rootIndex = blockMapPages[i];
