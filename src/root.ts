@@ -62,11 +62,6 @@ export class PdbRootStream {
         //  ulittle32_t Unknown;
         //  ulittle32_t BlockMapAddr;
         // };
-        // Constants based on file structure
-        const sizeOfUInt32 = 4;
-        const directoryBytesLengthReadOffset = pdbSignature.length + 3 * sizeOfUInt32;
-        const blockMapReadOffset = pdbSignature.length + 5 * sizeOfUInt32;
-
         try {
             const blockSizeReadOffset = pdbSignature.length;
             const blockSize = await readUInt32FromBlob(fileBlob, blockSizeReadOffset);
@@ -109,13 +104,12 @@ export class PdbRootStream {
             //      ulittle32_t StreamSizes[NumStreams];
             //      ulittle32_t StreamBlocks[NumStreams][];
             //    };
-            const streamDirectoryBufferLength = directoryBytesLength / sizeOfUInt32;
+            const streamDirectoryBufferLength = directoryBytesLength / sizeOfInt32;
             const streamDirectory = new Array(streamDirectoryBufferLength);
             for (let i = 0; i < streamDirectoryBufferLength; i++) {
-                streamDirectory[i] = toUInt32(rootPageData, i * sizeOfUInt32);
+                streamDirectory[i] = toUInt32(rootPageData, i * sizeOfInt32);
             }
 
-            // Construct the PdbRootStream
             return new PdbRootStream(blockSize, directoryBytesLength, streamDirectory);
         } catch (error) {
             console.error('Failed to create PDB root stream:', error);
