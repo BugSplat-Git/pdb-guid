@@ -1,4 +1,3 @@
-import { FileHandle } from 'node:fs/promises';
 
 export const sizeOfInt32 = 4; // sizeof(int) in C# is 4 bytes.
 export const sizeOfInt16 = 2;
@@ -13,26 +12,26 @@ export function toUInt16(bytes: Uint8Array, startIndex: number): number {
     return dataView.getUint16(startIndex, true);
 }
 
-export async function readUInt32(fileHandle: FileHandle, fileReadOffset: number): Promise<number | null> {
-    const arr = await readUInt32Array(fileHandle, fileReadOffset, 1);
+export async function readUInt32FromBlob(blob: Blob, fileReadOffset: number): Promise<number | null> {
+    const arr = await readUInt32ArrayFromBlob(blob, fileReadOffset, 1);
     return arr ? arr[0] : null;
 }
 
-export async function readUInt32Array(fileHandle: FileHandle, fileReadOffset: number, numIntsToRead: number): Promise<number[] | null> {
+export async function readUInt32ArrayFromBlob(blob: Blob, fileReadOffset: number, numIntsToRead: number): Promise<number[] | null> {
     const bufferLength = sizeOfInt32 * numIntsToRead;
-    const buffer = Buffer.alloc(bufferLength);
+    const blobSlice = blob.slice(fileReadOffset, fileReadOffset + bufferLength);
+    const arrayBuffer = await blobSlice.arrayBuffer();
 
-    const { bytesRead } = await fileHandle.read(buffer, 0, bufferLength, fileReadOffset);
-
-    if (bytesRead !== bufferLength) {
-        throw new Error(`Could not read int32 array, read ${bytesRead} bytes instead of ${bufferLength}`);
+    if (arrayBuffer.byteLength !== bufferLength) {
+        throw new Error(`Could not read int32 array, read ${arrayBuffer.byteLength} bytes instead of ${bufferLength}`);
     }
 
+    const bytes = new Uint8Array(arrayBuffer);
     const intArray: number[] = [];
-
     for (let i = 0; i < numIntsToRead; i++) {
-        intArray.push(buffer.readUInt32LE(i * sizeOfInt32));
+        intArray.push(toUInt32(bytes, i * sizeOfInt32));
     }
 
     return intArray;
 }
+

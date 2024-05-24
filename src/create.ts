@@ -1,6 +1,7 @@
 import { PeFile } from './pe';
 import { PdbFile } from './pdb';
 import { extname } from 'node:path';
+import { openAsBlob } from 'node:fs';
 
 export async function createFromFile(path: string): Promise<PdbFile | PeFile> {
     if (!path) {
@@ -13,9 +14,11 @@ export async function createFromFile(path: string): Promise<PdbFile | PeFile> {
         throw new Error('File does not have .pdb, .exe, or .dll extension: ' + path);
     }
 
+    const fileBlob = await openAsBlob(path);
+
     if (extension === '.pdb') {
-        return PdbFile.createFromFile(path);
+        return PdbFile.createFromBlob(fileBlob);
     }
 
-    return PeFile.createFromFile(path);
+    return PeFile.createFromBlob(fileBlob);
 }

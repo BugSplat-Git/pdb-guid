@@ -1,5 +1,4 @@
-import { FileHandle } from "node:fs/promises";
-import { readUInt32, readUInt32Array, sizeOfInt32, toUInt16, toUInt32 } from "../src/int";
+import { readUInt32ArrayFromBlob, readUInt32FromBlob, sizeOfInt32, toUInt16, toUInt32 } from "../src/int";
 
 describe('int', () => {
     describe('toUInt32', () => {
@@ -41,16 +40,8 @@ describe('int', () => {
     describe('readUInt32Array', () => {
         it('should read int32 array from file', async () => {
             const buffer = Buffer.from([1, 0, 0, 0, 2, 0, 0, 0]);
-            const bytesRead = buffer.length;
-            const fileHandle: jasmine.SpyObj<FileHandle> = jasmine.createSpyObj('FileHandle', ['read']);
-            fileHandle.read.and.callFake(
-                async (readBuffer: Buffer, offset?: number, length?: number, position?: number) => {
-                    readBuffer.set(buffer, offset);
-                    return { bytesRead, buffer };
-                }
-            );
 
-            const result = await readUInt32Array(fileHandle as any, 0, buffer.length / sizeOfInt32);
+            const result = await readUInt32ArrayFromBlob(new Blob([buffer]), 0, buffer.length / sizeOfInt32);
 
             expect(result![0]).toEqual(1);
             expect(result![1]).toEqual(2);
@@ -58,40 +49,24 @@ describe('int', () => {
 
         it('should return null if wrong number of bytes read', async () => {
             const buffer = Buffer.from([1, 0, 0, 0, 2, 0, 0, 0]);
-            const fileHandle: jasmine.SpyObj<FileHandle> = jasmine.createSpyObj('FileHandle', ['read']);
-            fileHandle.read.and.callFake(
-                async () => ({ bytesRead: 0, buffer })
-            );
 
-            return expectAsync(readUInt32Array(fileHandle as any, 0, buffer.length / sizeOfInt32)).toBeRejectedWithError(/read 0 bytes instead of 8/);
+            return expectAsync(readUInt32ArrayFromBlob(new Blob([buffer]), 8, buffer.length / sizeOfInt32)).toBeRejectedWithError(/read 0 bytes instead of 8/);
         });
     });
 
     describe('readUInt32', () => {
         it('should read int32 from file', async () => {
             const buffer = Buffer.from([0, 0, 0, 0, 1, 0, 0, 0]);
-            const bytesRead = buffer.length / 2;
-            const fileHandle: jasmine.SpyObj<FileHandle> = jasmine.createSpyObj('FileHandle', ['read']);
-            fileHandle.read.and.callFake(
-                async (readBuffer: Buffer, offset?: number, length?: number, position?: number) => {
-                    readBuffer.set(buffer.slice(length, length! * 2), offset);
-                    return { bytesRead, buffer };
-                }
-            );
 
-            const result = await readUInt32(fileHandle as any, 4);
+            const result = await readUInt32FromBlob(new Blob([buffer]), 4);
 
             expect(result).toEqual(1);
         });
 
         it('should return null if wrong number of bytes read', async () => {
             const buffer = Buffer.from([1, 0, 0, 0]);
-            const fileHandle: jasmine.SpyObj<FileHandle> = jasmine.createSpyObj('FileHandle', ['read']);
-            fileHandle.read.and.callFake(
-                async () => ({ bytesRead: 0, buffer })
-            );
 
-            return expectAsync(readUInt32(fileHandle as any, 0)).toBeRejectedWithError(/read 0 bytes instead of 4/);
+            return expectAsync(readUInt32FromBlob(new Blob([buffer]), 4)).toBeRejectedWithError(/read 0 bytes instead of 4/);
         });
     });
 });
