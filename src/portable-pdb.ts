@@ -1,5 +1,5 @@
 import { PdbGuid } from './guid';
-import { readUInt32FromBlob, sizeOfInt32, toUInt16, toUInt32 } from './int';
+import { readUInt32FromBlob, toUInt16, toUInt32 } from './int';
 import { portablePdbSignature } from './signature';
 
 // Portable PDB parser for .NET assemblies.
