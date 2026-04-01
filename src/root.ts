@@ -62,59 +62,54 @@ export class PdbRootStream {
         //  ulittle32_t Unknown;
         //  ulittle32_t BlockMapAddr;
         // };
-        try {
-            const blockSizeReadOffset = pdbSignature.length;
-            const blockSize = await readUInt32FromBlob(fileBlob, blockSizeReadOffset);
-            if (!blockSize) {
-                throw new Error('Could not read blockSize');
-            }
-
-            const directoryBytesLengthReadOffset = pdbSignature.length + 3 * sizeOfInt32;
-            const directoryBytesLength = await readUInt32FromBlob(fileBlob, directoryBytesLengthReadOffset);
-            if (!directoryBytesLength) {
-                throw new Error('Could not read directoryBytesLength');
-            }
-
-            const blockMapAddressesCount = getBlockCountForBytes(directoryBytesLength, blockSize);
-            const blockMapReadOffset = pdbSignature.length + 5 * sizeOfInt32;
-
-            const blockMapAddress = await readUInt32FromBlob(fileBlob, blockMapReadOffset);
-            if (!blockMapAddress) {
-                throw new Error('Could not read blockMapAddress');
-            }
-            const blockMapPages = await readUInt32ArrayFromBlob(fileBlob, blockMapAddress * blockSize, blockMapAddressesCount);
-
-            if (!blockMapPages) {
-                throw new Error('Could not read blockMapPages');
-            }
-
-            const rootPageData = new Uint8Array(blockMapAddressesCount * blockSize);
-            for (let i = 0; i < blockMapAddressesCount; i++) {
-                const rootIndex = blockMapPages[i];
-                const pageBlob = fileBlob.slice(rootIndex * blockSize, (rootIndex + 1) * blockSize);
-                const pageArrayBuffer = await pageBlob.arrayBuffer();
-                rootPageData.set(new Uint8Array(pageArrayBuffer), i * blockSize);
-            }
-
-            // Finally, read in the stream directory which is a block of uints with the following structure.
-            // We store this in a single uint array.
-            //
-            //    struct StreamDirectory {
-            //      ulittle32_t NumStreams;
-            //      ulittle32_t StreamSizes[NumStreams];
-            //      ulittle32_t StreamBlocks[NumStreams][];
-            //    };
-            const streamDirectoryBufferLength = directoryBytesLength / sizeOfInt32;
-            const streamDirectory = new Array(streamDirectoryBufferLength);
-            for (let i = 0; i < streamDirectoryBufferLength; i++) {
-                streamDirectory[i] = toUInt32(rootPageData, i * sizeOfInt32);
-            }
-
-            return new PdbRootStream(blockSize, directoryBytesLength, streamDirectory);
-        } catch (error) {
-            console.error('Failed to create PDB root stream:', error);
-            throw error;
+        const blockSizeReadOffset = pdbSignature.length;
+        const blockSize = await readUInt32FromBlob(fileBlob, blockSizeReadOffset);
+        if (!blockSize) {
+            throw new Error('Could not read blockSize');
         }
+
+        const directoryBytesLengthReadOffset = pdbSignature.length + 3 * sizeOfInt32;
+        const directoryBytesLength = await readUInt32FromBlob(fileBlob, directoryBytesLengthReadOffset);
+        if (!directoryBytesLength) {
+            throw new Error('Could not read directoryBytesLength');
+        }
+
+        const blockMapAddressesCount = getBlockCountForBytes(directoryBytesLength, blockSize);
+        const blockMapReadOffset = pdbSignature.length + 5 * sizeOfInt32;
+
+        const blockMapAddress = await readUInt32FromBlob(fileBlob, blockMapReadOffset);
+        if (!blockMapAddress) {
+            throw new Error('Could not read blockMapAddress');
+        }
+        const blockMapPages = await readUInt32ArrayFromBlob(fileBlob, blockMapAddress * blockSize, blockMapAddressesCount);
+
+        if (!blockMapPages) {
+            throw new Error('Could not read blockMapPages');
+        }
+
+        const rootPageData = new Uint8Array(blockMapAddressesCount * blockSize);
+        for (let i = 0; i < blockMapAddressesCount; i++) {
+            const rootIndex = blockMapPages[i];
+            const pageBlob = fileBlob.slice(rootIndex * blockSize, (rootIndex + 1) * blockSize);
+            const pageArrayBuffer = await pageBlob.arrayBuffer();
+            rootPageData.set(new Uint8Array(pageArrayBuffer), i * blockSize);
+        }
+
+        // Finally, read in the stream directory which is a block of uints with the following structure.
+        // We store this in a single uint array.
+        //
+        //    struct StreamDirectory {
+        //      ulittle32_t NumStreams;
+        //      ulittle32_t StreamSizes[NumStreams];
+        //      ulittle32_t StreamBlocks[NumStreams][];
+        //    };
+        const streamDirectoryBufferLength = directoryBytesLength / sizeOfInt32;
+        const streamDirectory = new Array(streamDirectoryBufferLength);
+        for (let i = 0; i < streamDirectoryBufferLength; i++) {
+            streamDirectory[i] = toUInt32(rootPageData, i * sizeOfInt32);
+        }
+
+        return new PdbRootStream(blockSize, directoryBytesLength, streamDirectory);
     }
 }
 
