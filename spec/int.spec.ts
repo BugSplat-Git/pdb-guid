@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { readUInt32ArrayFromBlob, readUInt32FromBlob, sizeOfInt32, toUInt16, toUInt32 } from "../src/int";
 
 describe('int', () => {
@@ -50,7 +51,7 @@ describe('int', () => {
         it('should return null if wrong number of bytes read', async () => {
             const buffer = Buffer.from([1, 0, 0, 0, 2, 0, 0, 0]);
 
-            return expectAsync(readUInt32ArrayFromBlob(new Blob([buffer]), 8, buffer.length / sizeOfInt32)).toBeRejectedWithError(/read 0 bytes instead of 8/);
+            await expect(readUInt32ArrayFromBlob(new Blob([buffer]), 8, buffer.length / sizeOfInt32)).rejects.toThrowError(/read 0 bytes instead of 8/);
         });
     });
 
@@ -66,7 +67,7 @@ describe('int', () => {
         it('should return null if wrong number of bytes read', async () => {
             const buffer = Buffer.from([1, 0, 0, 0]);
 
-            return expectAsync(readUInt32FromBlob(new Blob([buffer]), 4)).toBeRejectedWithError(/read 0 bytes instead of 4/);
+            await expect(readUInt32FromBlob(new Blob([buffer]), 4)).rejects.toThrowError(/read 0 bytes instead of 4/);
         });
     });
 });
