@@ -1,4 +1,6 @@
 
+export const portablePdbSignature = 0x424A5342; // "BSJB"
+
 export const peSignature: number[] = [
     80, // P
     69, // E
