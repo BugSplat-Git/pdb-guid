@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { openAsBlob } from 'node:fs';
 import { PdbRootStream } from '../src/root';
 

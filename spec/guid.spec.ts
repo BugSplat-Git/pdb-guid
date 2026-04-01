@@ -1,3 +1,4 @@
+import { describe, expect, it } from 'vitest';
 import { PdbGuid, PeGuid } from '../src/guid';
 
 describe('guid', () => {
