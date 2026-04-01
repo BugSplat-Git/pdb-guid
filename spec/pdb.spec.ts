@@ -10,7 +10,7 @@ describe('pdbFile', () => {
     });
 
     it('should read guid of an unreal .pdb file', async () => {
-        const blob = await openAsBlob('./spec/support/UnrealEditor-MyUnrealCrasher.pdb');
+        const blob = await openAsBlob('./spec/support/unrealeditor-myunrealcrasher.pdb');
         const pdbFile = await PdbFile.createFromBlob(blob);
         expect(pdbFile.guid.toString()).toMatch(/^369E999AF40647DF8A09C12F8B3BC2661$/);
     });

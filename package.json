@@ -7,9 +7,9 @@
     "pdb-guid": "./dist/bin/index.js"
   },
   "scripts": {
-    "start": "ts-node bin/index.ts ./spec/support/bugsplat.pdb",
+    "start": "node --import tsx bin/index.ts ./spec/support/bugsplat.pdb",
     "test": "vitest run",
-    "help": "ts-node ./bin/index.ts -h",
+    "help": "node --import tsx ./bin/index.ts -h",
     "build": "tsc",
     "prerelease": "npm run build",
     "release": "npm publish --access public"
@@ -40,6 +40,9 @@
     "url": "https://github.com/BugSplat-Git/pdb-guid/issues"
   },
   "homepage": "https://github.com/BugSplat-Git/pdb-guid#readme",
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "command-line-args": "^5.2.1",
     "command-line-usage": "^7.0.1"
@@ -49,6 +52,7 @@
     "@types/command-line-usage": "^5.0.2",
     "@types/node": "^20.6.1",
     "glob": "^13.0.6",
+    "tsx": "^4.21.0",
     "typescript": "^5.2.2",
     "vitest": "^4.1.2"
   }

@@ -17,7 +17,7 @@ describe.skipIf(platform() !== 'win32')('symsrv directory', () => {
 
         for (let file of files) {
             const expectedGuid = file.split(sep).at(-2)!.toLowerCase();
-            const actualGuid = await createFromFile(file).then(file => file.guid.toString().toLowerCase());
+            const actualGuid = await createFromFile(file).then(pdbFile => pdbFile.guid.toString().toLowerCase());
             expect(actualGuid).toBe(expectedGuid);
         }
     });
