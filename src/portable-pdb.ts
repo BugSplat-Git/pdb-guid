@@ -35,30 +35,37 @@ async function findPdbStreamOffset(fileBlob: Blob): Promise<number> {
     //   12-15: Version string length (padded to 4-byte boundary)
     //   16+:   Version string
     const versionLength = await readUInt32FromBlob(fileBlob, 12);
-    if (versionLength === null) {
-        throw new Error('Could not read version string length');
-    }
 
     // After version string: 2-byte flags, 2-byte stream count
-    const streamsHeaderOffset = 16 + versionLength;
+    const streamsHeaderOffset = 16 + versionLength!;
     const headerSlice = fileBlob.slice(streamsHeaderOffset, streamsHeaderOffset + 4);
     const headerBuf = new Uint8Array(await headerSlice.arrayBuffer());
+    if (headerBuf.length < 4) {
+        throw new Error('Could not read streams header');
+    }
     const numStreams = toUInt16(headerBuf, 2);
 
     // Parse stream headers to find #Pdb
     let offset = streamsHeaderOffset + 4;
     for (let i = 0; i < numStreams; i++) {
-        const entrySlice = fileBlob.slice(offset, offset + 72); // 8 bytes + up to 64 byte name
-        const entryBuf = new Uint8Array(await entrySlice.arrayBuffer());
+        // Read fixed 8-byte stream header (offset and size)
+        const headerEntrySlice = fileBlob.slice(offset, offset + 8);
+        const headerEntryBuf = new Uint8Array(await headerEntrySlice.arrayBuffer());
+        if (headerEntryBuf.length < 8) {
+            throw new Error('Incomplete stream header entry in Portable PDB');
+        }
 
-        const streamOffset = toUInt32(entryBuf, 0);
-        const name = readNullTerminatedString(entryBuf, 8);
+        const streamOffset = toUInt32(headerEntryBuf, 0);
+
+        // Read stream name (null-terminated, padded to 4-byte boundary)
+        const nameSlice = fileBlob.slice(offset + 8, offset + 72);
+        const nameBuf = new Uint8Array(await nameSlice.arrayBuffer());
+        const name = readNullTerminatedString(nameBuf, 0);
 
         if (name === '#Pdb') {
             return streamOffset;
         }
 
-        // Name is null-terminated, padded to 4-byte boundary
         const paddedNameLength = Math.ceil((name.length + 1) / 4) * 4;
         offset += 8 + paddedNameLength;
     }
