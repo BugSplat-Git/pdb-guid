@@ -112,6 +112,8 @@ function readNullTerminatedString(buf: Uint8Array, offset: number): string {
     return new TextDecoder().decode(buf.slice(offset, end));
 }
 
+// Arithmetic (not bitwise) so large uint32 values stay in the safe JS number range.
+// Bitwise ops coerce to signed int32, which overflows for versionLength > 0x7fffffff.
 function align4(value: number): number {
-    return (value + 3) & ~3;
+    return Math.ceil(value / 4) * 4;
 }
