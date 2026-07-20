@@ -8,6 +8,11 @@ describe('guid', () => {
             expect(guid.toString()).toEqual('000000010001000100000000000000011');
         });
 
+        it('should format portable PDB age as FFFFFFFF', () => {
+            const guid = new PdbGuid(1, 1, 1, new Uint8Array([0, 0, 0, 0, 0, 0, 0,1]), 0xffffffff);
+            expect(guid.toString()).toEqual('00000001000100010000000000000001FFFFFFFF');
+        });
+
         it('should create guid without age if not provided', () => {
             const guid = new PdbGuid(1, 1, 1, new Uint8Array([0, 0, 0, 0, 0, 0, 0,1]));
             expect(guid.toString()).toEqual('00000001000100010000000000000001');

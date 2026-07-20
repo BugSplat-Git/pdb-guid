@@ -4,11 +4,11 @@ import { PortablePdbFile } from '../src/portable-pdb';
 import { createFromFile } from '../src/create';
 
 describe('PortablePdbFile', () => {
-    it('should read guid of a portable .pdb file', async () => {
+    it('should read guid of a portable .pdb file with SSQP FFFFFFFF age', async () => {
         const blob = await openAsBlob('./spec/support/testapp.pdb');
         const pdbFile = await PortablePdbFile.createFromBlob(blob);
-        expect(pdbFile.guid.toString()).toBe('8FD634ED5F9B446F94D0A5FC87765B431');
-        expect(pdbFile.age).toBe(1);
+        expect(pdbFile.guid.toString()).toBe('8FD634ED5F9B446F94D0A5FC87765B43FFFFFFFF');
+        expect(pdbFile.age).toBe(0xffffffff);
     });
 
     it('should throw for a native pdb file', async () => {
@@ -19,7 +19,8 @@ describe('PortablePdbFile', () => {
     it('should be returned by createFromFile for a portable pdb', async () => {
         const result = await createFromFile('./spec/support/testapp.pdb');
         expect(result).toBeInstanceOf(PortablePdbFile);
-        expect(result.guid.toString()).toMatch(/^[A-F0-9]{32}1$/);
+        // SSQP portable-PDB key is <guid>FFFFFFFF
+        expect(result.guid.toString()).toMatch(/^[A-F0-9]{32}FFFFFFFF$/);
     });
 
     it('should return a native PdbFile for a native pdb via createFromFile', async () => {
