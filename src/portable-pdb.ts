@@ -2,21 +2,25 @@ import { PdbGuid } from './guid';
 import { readUInt32FromBlob, toUInt16, toUInt32 } from './int';
 import { portablePdbSignature } from './signature';
 
+// Portable PDBs use the SSQP key convention <guid>FFFFFFFF — age is always
+// UInt32.MaxValue, not the DBI age used by native MSF PDBs.
+// https://github.com/dotnet/symstore/blob/main/docs/specs/SSQP_Key_Conventions.md
+const PORTABLE_PDB_AGE = 0xffffffff;
+
 // Portable PDB parser for .NET assemblies.
 // Extracts the GUID from the #Pdb stream in the ECMA-335 metadata.
-// Portable PDB age is always 1.
 export class PortablePdbFile {
     constructor(public readonly guid: PdbGuid) { }
 
     get age(): number {
-        return 1;
+        return PORTABLE_PDB_AGE;
     }
 
     static async createFromBlob(fileBlob: Blob): Promise<PortablePdbFile> {
         await verifyPortablePdbSignature(fileBlob);
         const pdbStreamOffset = await findPdbStreamOffset(fileBlob);
         const guid = await readGuidFromPdbStream(fileBlob, pdbStreamOffset);
-        return new PortablePdbFile(new PdbGuid(guid.d1, guid.d2, guid.d3, guid.d4, 1));
+        return new PortablePdbFile(new PdbGuid(guid.d1, guid.d2, guid.d3, guid.d4, PORTABLE_PDB_AGE));
     }
 }
 
@@ -32,12 +36,13 @@ async function findPdbStreamOffset(fileBlob: Blob): Promise<number> {
     //   0-3:   Signature (BSJB)
     //   4-7:   MajorVersion, MinorVersion
     //   8-11:  Reserved
-    //   12-15: Version string length (padded to 4-byte boundary)
-    //   16+:   Version string
+    //   12-15: Version string length
+    //   16+:   Version string, then padding to next 4-byte boundary
+    //   then:  2-byte flags, 2-byte stream count, stream headers...
     const versionLength = await readUInt32FromBlob(fileBlob, 12);
 
-    // After version string: 2-byte flags, 2-byte stream count
-    const streamsHeaderOffset = 16 + versionLength!;
+    // Version string is followed by padding to a 4-byte boundary before flags/streams.
+    const streamsHeaderOffset = 16 + align4(versionLength!);
     const headerSlice = fileBlob.slice(streamsHeaderOffset, streamsHeaderOffset + 4);
     const headerBuf = new Uint8Array(await headerSlice.arrayBuffer());
     if (headerBuf.length < 4) {
@@ -56,6 +61,7 @@ async function findPdbStreamOffset(fileBlob: Blob): Promise<number> {
         }
 
         const streamOffset = toUInt32(headerEntryBuf, 0);
+        const streamSize = toUInt32(headerEntryBuf, 4);
 
         // Read stream name (null-terminated, padded to 4-byte boundary)
         const nameSlice = fileBlob.slice(offset + 8, offset + 72);
@@ -63,6 +69,10 @@ async function findPdbStreamOffset(fileBlob: Blob): Promise<number> {
         const name = readNullTerminatedString(nameBuf, 0);
 
         if (name === '#Pdb') {
+            // PDB id is 16-byte GUID + 4-byte stamp
+            if (streamSize < 20) {
+                throw new Error('Portable PDB #Pdb stream is too small');
+            }
             return streamOffset;
         }
 
@@ -100,4 +110,10 @@ function readNullTerminatedString(buf: Uint8Array, offset: number): string {
     let end = offset;
     while (end < buf.length && buf[end] !== 0) end++;
     return new TextDecoder().decode(buf.slice(offset, end));
+}
+
+// Arithmetic (not bitwise) so large uint32 values stay in the safe JS number range.
+// Bitwise ops coerce to signed int32, which overflows for versionLength > 0x7fffffff.
+function align4(value: number): number {
+    return Math.ceil(value / 4) * 4;
 }
